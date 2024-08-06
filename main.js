@@ -1,5 +1,17 @@
-const { app, BrowserWindow, globalShortcut, Tray, Menu } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  globalShortcut,
+  Tray,
+  Menu,
+  ipcMain,
+} = require("electron");
 const path = require("path");
+const { autoUpdater } = require("electron-updater");
+
+try {
+  require("electron-reloader")(module);
+} catch (_) {}
 
 let mainWindow;
 
@@ -61,7 +73,7 @@ function createTray(win) {
       },
     },
   ]);
-  tray.setToolTip("v0.0.1");
+  tray.setToolTip(app.getVersion());
   tray.setContextMenu(contextMenu);
 
   tray.on("click", () => win.show());
@@ -79,6 +91,9 @@ app.on("ready", () => {
       win.show();
     });
   });
+
+  autoUpdater.checkForUpdatesAndNotify();
+  win.Message;
 });
 
 app.on("window-all-closed", () => {
@@ -95,7 +110,3 @@ app.on("activate", () => {
     createWindow();
   }
 });
-
-try {
-  require("electron-reloader")(module);
-} catch (_) {}
