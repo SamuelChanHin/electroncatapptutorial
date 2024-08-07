@@ -6,107 +6,117 @@ const {
   Menu,
   ipcMain,
 } = require("electron");
+// const { autoUpdater } = require("electron-updater");
 const path = require("path");
-const { autoUpdater } = require("electron-updater");
 
-try {
-  require("electron-reloader")(module);
-} catch (_) {}
+class Bootstrapper {
+  mainWindow;
 
-let mainWindow;
+  constructor() {
+    this.init();
+  }
 
-function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 350,
-    height: 350,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-    frame: false,
-    transparent: true,
-    autoHideMenuBar: true,
-  });
+  init() {
+    try {
+      require("electron-reloader")(module);
+    } catch (_) {}
 
-  mainWindow.loadFile(path.join(__dirname, "dist/index.html"));
+    app.on("ready", () => {
+      this.createWindow();
+      this.createTray();
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+      [1, 2, 3].map((num) => {
+        globalShortcut.register(`CommandOrControl+${num}`, () => {
+          this.mainWindow.webContents.send("switch-cat", num);
+          this.mainWindow.show();
+        });
+      });
 
-  return mainWindow;
-}
+      ipcMain.handle("ping", () => "pong");
 
-function createTray(win) {
-  const iconPath = path.join(__dirname, "dist/assets/tray.png");
-  const tray = new Tray(iconPath);
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: "貓咪 4",
-      click: () => {
-        win.show();
-        win.webContents.send("switch-cat", 4);
-      },
-    },
-    {
-      label: "貓咪 5",
-      click: () => {
-        win.show();
-        win.webContents.send("switch-cat", 5);
-      },
-    },
-    {
-      label: "貓咪 6",
-      click: () => {
-        win.show();
-        win.webContents.send("switch-cat", 6);
-      },
-    },
-    {
-      label: "縮小",
-      click: () => win.hide(), // 隱藏 桌面貓咪
-    },
-    {
-      label: "結束",
-      click: () => {
-        app.isQuiting = true;
-        app.quit();
-      },
-    },
-  ]);
-  tray.setToolTip(app.getVersion());
-  tray.setContextMenu(contextMenu);
+      app.on("activate", () => {
+        // On macOS it's common to re-create a window in the app when the
+        // dock icon is clicked and there are no other windows open.
 
-  tray.on("click", () => win.show());
-
-  return tray;
-}
-
-app.on("ready", () => {
-  const win = createWindow();
-  createTray(win);
-
-  [1, 2, 3].map((num) => {
-    globalShortcut.register(`CommandOrControl+${num}`, () => {
-      win.webContents.send("switch-cat", num);
-      win.show();
+        if (BrowserWindow.getAllWindows().length === 0) {
+          this.createWindow();
+        }
+      });
     });
-  });
 
-  autoUpdater.checkForUpdatesAndNotify();
-  win.Message;
-});
-
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
+    app.on("window-all-closed", () => {
+      if (process.platform !== "darwin") {
+        app.quit();
+      }
+    });
   }
-});
 
-app.on("activate", () => {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
+  createWindow() {
+    this.mainWindow = new BrowserWindow({
+      width: 350,
+      height: 350,
+      webPreferences: {
+        preload: path.join(__dirname, "preload.js"),
+        nodeIntegration: true,
+        contextIsolation: false,
+      },
+      // frame: false,
+      // transparent: true,
+      // autoHideMenuBar: true,
+    });
 
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    this.mainWindow.loadFile(path.join(__dirname, "dist/index.html"));
+
+    // Open the DevTools.
+    // this.mainWindow.webContents.openDevTools();
+
+    return this.mainWindow;
   }
-});
+
+  createTray() {
+    const iconPath = path.join(__dirname, "dist/assets/tray.png");
+    const tray = new Tray(iconPath);
+    const contextMenu = Menu.buildFromTemplate([
+      {
+        label: "貓咪 4",
+        click: () => {
+          this.mainWindow.show();
+          this.mainWindow.webContents.send("switch-cat", 4);
+        },
+      },
+      {
+        label: "貓咪 5",
+        click: () => {
+          this.mainWindow.show();
+          this.mainWindow.webContents.send("switch-cat", 5);
+        },
+      },
+      {
+        label: "貓咪 6",
+        click: () => {
+          this.mainWindow.show();
+          this.mainWindow.webContents.send("switch-cat", 6);
+        },
+      },
+      {
+        label: "縮小",
+        click: () => this.mainWindow.hide(), // 隱藏 桌面貓咪
+      },
+      {
+        label: "結束",
+        click: () => {
+          app.isQuiting = true;
+          app.quit();
+        },
+      },
+    ]);
+    tray.setToolTip(app.getVersion());
+    tray.setContextMenu(contextMenu);
+
+    tray.on("click", () => this.mainWindow.show());
+
+    return tray;
+  }
+}
+
+new Bootstrapper();

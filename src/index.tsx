@@ -1,12 +1,14 @@
 import Mousetrap from "mousetrap";
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
+import "./styles/global.css";
 const { ipcRenderer } = window.require("electron");
 
 const App = () => {
   const [catNum, setCatNum] = useState(1);
 
   useEffect(() => {
+    (window as any).versions.ping();
     ipcRenderer.on(`switch-cat`, (event: any, args: any) => {
       setCatNum(args);
     });
@@ -29,6 +31,7 @@ const App = () => {
 
   return (
     <h1>
+      123
       <img src={`assets/cat${catNum}.gif`} />
     </h1>
   );
