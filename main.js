@@ -27,12 +27,11 @@ class Bootstrapper {
 
       [1, 2, 3].map((num) => {
         globalShortcut.register(`CommandOrControl+${num}`, () => {
+          console.log(num);
           this.mainWindow.webContents.send("switch-cat", num);
           this.mainWindow.show();
         });
       });
-
-      ipcMain.handle("ping", () => "pong");
 
       app.on("activate", () => {
         // On macOS it's common to re-create a window in the app when the
@@ -58,7 +57,7 @@ class Bootstrapper {
       webPreferences: {
         preload: path.join(__dirname, "preload.js"),
         nodeIntegration: true,
-        contextIsolation: false,
+        contextIsolation: true,
       },
       // frame: false,
       // transparent: true,
@@ -68,7 +67,7 @@ class Bootstrapper {
     this.mainWindow.loadFile(path.join(__dirname, "dist/index.html"));
 
     // Open the DevTools.
-    // this.mainWindow.webContents.openDevTools();
+    this.mainWindow.webContents.openDevTools();
 
     return this.mainWindow;
   }
