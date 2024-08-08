@@ -9,7 +9,7 @@ contextBridge.exposeInMainWorld("versions", {
 
 contextBridge.exposeInMainWorld("actions", {
   ping: () => ipcRenderer.invoke("ping"),
-  switchCat: (callback) => {
-    ipcRenderer.on(`switch-cat`, (event, args) => callback(args));
+  switchCat: (callback: Function) => {
+    ipcRenderer.on(`switch-cat`, (event: any, args: any) => callback(args));
   },
 });

@@ -11,7 +11,7 @@ builder
       productName: "Cat App", // 應用程式名稱
       copyright: "", // 授權宣告
       directories: {
-        output: "build", // 打包後的應用程式放置在 electron-build/win
+        output: "packages", // 打包後的應用程式放置在 electron-build/win
       },
       // 設定打包後的 icon
       win: {

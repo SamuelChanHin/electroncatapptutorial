@@ -3,13 +3,13 @@
   "author": "",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "build/main.js",
   "type": "commonjs",
   "scripts": {
     "dev": "concurrently \"yarn build-dev\" \"yarn electron-start\"",
     "web-dev": "webpack-dev-server --mode development",
     "build-dev": "webpack --watch --mode development",
-    "electron-start": "electron .",
+    "electron-start": "tsc -p electron && electron .",
     "build": "webpack --mode production",
     "electron-build": "yarn build && node build.js"
   },

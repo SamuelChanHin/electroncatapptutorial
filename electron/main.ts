@@ -1,16 +1,16 @@
-const {
+import {
   app,
   BrowserWindow,
   globalShortcut,
   Tray,
   Menu,
   ipcMain,
-} = require("electron");
-// const { autoUpdater } = require("electron-updater");
-const path = require("path");
+} from "electron";
+import * as path from "path";
 
 class Bootstrapper {
-  mainWindow;
+  // @ts-ignore
+  private mainWindow: BrowserWindow;
 
   constructor() {
     this.init();
@@ -64,7 +64,7 @@ class Bootstrapper {
       // autoHideMenuBar: true,
     });
 
-    this.mainWindow.loadFile(path.join(__dirname, "dist/index.html"));
+    this.mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
 
     // Open the DevTools.
     this.mainWindow.webContents.openDevTools();
@@ -73,7 +73,7 @@ class Bootstrapper {
   }
 
   createTray() {
-    const iconPath = path.join(__dirname, "dist/assets/tray.png");
+    const iconPath = path.join(__dirname, "../dist/assets/tray.png");
     const tray = new Tray(iconPath);
     const contextMenu = Menu.buildFromTemplate([
       {
@@ -104,7 +104,6 @@ class Bootstrapper {
       {
         label: "結束",
         click: () => {
-          app.isQuiting = true;
           app.quit();
         },
       },
